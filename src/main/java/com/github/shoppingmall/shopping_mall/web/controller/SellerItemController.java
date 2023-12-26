@@ -1,36 +1,42 @@
 package com.github.shoppingmall.shopping_mall.web.controller;
 
-import com.github.shoppingmall.shopping_mall.repository.SellerItem.SellerItemRequest;
 import com.github.shoppingmall.shopping_mall.repository.Item.Item;
 import com.github.shoppingmall.shopping_mall.service.SellerItemService;
-import jakarta.websocket.server.PathParam;
-import org.apache.tomcat.util.http.parser.HttpParser;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.github.shoppingmall.shopping_mall.web.dto.seller.SellerItemRequestDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
+@Slf4j
+@RequiredArgsConstructor
 public class SellerItemController {
-    @Autowired
-    private SellerItemService sellerItemService;
+    private final SellerItemService sellerItemService;
+    private static final Logger logger = LoggerFactory.getLogger(SellerItemController.class);
 
     @PostMapping("/seller/add")
-    public ResponseEntity<Item> addSellerItem(@RequestBody SellerItemRequest request){
-    /*
-        Item addItem = sellerItemService.addItem(
-                request.getSellerItem(),
-                request.getOptions(),
-                request.getStockItem());
+    public ResponseEntity<Item> addSellerItem(@RequestBody SellerItemRequestDto requestDto){
+        Item addItem = sellerItemService.addItem( requestDto );
         return new ResponseEntity<>(addItem, HttpStatus.CREATED);
-     */
-        return new ResponseEntity<>(new Item(), HttpStatus.CREATED);
+        /*
+        {
+            "userId": 1,
+            "categoryId": 1,
+            "unitPrice": 1000,
+            "quantity": 100,
+            "itemName": "test",
+            "itemExplain": "테스트중입니다. - 정재화 -",
+            "startDate": "2023-12-27 01:24:23",
+            "endDate": "2023-12-31 23:00:00"
+        }
+         */
     }
-
+/*
     @GetMapping("/seller/{sellerId}")
     public ResponseEntity<List<Item>> getItemBySeller(@PathVariable int sellerId ){
     //    List<Item> sellerItems = sellerItemService.getSellerItemsBySeller(sellerId);
@@ -41,10 +47,10 @@ public class SellerItemController {
 
     @PutMapping("/seller/{itemId}")
     public ResponseEntity<Item> updateItem(@PathVariable int itemId, @RequestBody Item sellerItem){
-    /*    Item updatedItem = sellerItemService.updateItem(itemId, sellerItem);
-        return new ResponseEntity<>(updatedItem, HttpStatus.OK);
-    */
+    //    Item updatedItem = sellerItemService.updateItem(itemId, sellerItem);
+    //    return new ResponseEntity<>(updatedItem, HttpStatus.OK);
+
         return new ResponseEntity<>(new Item(), HttpStatus.OK);
     }
-
+*/
 }

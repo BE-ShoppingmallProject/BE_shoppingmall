@@ -19,7 +19,9 @@ import java.util.Map;
         basePackages = {"com.github.shoppingmall.shopping_mall.repository.Cart",
                 "com.github.shoppingmall.shopping_mall.repository.Order",
                 "com.github.shoppingmall.shopping_mall.repository.Item",
-                "com.github.shoppingmall.shopping_mall.repository.User"},
+                "com.github.shoppingmall.shopping_mall.repository.User",
+                "com.github.shoppingmall.shopping_mall.repository.Post",
+                "com.github.shoppingmall.shopping_mall.repository.SellerItem"},
         entityManagerFactoryRef = "entityManagerFactoryBean1",
         transactionManagerRef = "tmJpa1"
 )
@@ -31,7 +33,9 @@ public class JpaConfig {
         em.setPackagesToScan("com.github.shoppingmall.shopping_mall.repository.Cart",
                 "com.github.shoppingmall.shopping_mall.repository.Order",
                 "com.github.shoppingmall.shopping_mall.repository.Item",
-                "com.github.shoppingmall.shopping_mall.repository.User");
+                "com.github.shoppingmall.shopping_mall.repository.User",
+                "com.github.shoppingmall.shopping_mall.repository.Post",
+                "com.github.shoppingmall.shopping_mall.repository.SellerItem");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
