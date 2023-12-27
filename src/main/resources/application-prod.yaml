@@ -3,7 +3,7 @@ spring:
     activate:
       on-profile: prod
 logging:
-  config: classpath:logback-spring-prod.xml
+  config: classpath:logback.spring-prod.xml
 
 
 datasource:
@@ -11,3 +11,6 @@ datasource:
   password: ${DATABASE_PASSWORD}
   url: jdbc:mysql://mini.jh1105.xyz:5306/project2?useUnicode=true&characterEncoding=UTF-8
   driver-class-name: com.mysql.cj.jdbc.Driver
+
+jwtpassword:
+  source: ${TOKEN_CODE}
