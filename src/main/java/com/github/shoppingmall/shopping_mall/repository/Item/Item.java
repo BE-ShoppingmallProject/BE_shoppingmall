@@ -27,9 +27,9 @@ public class Item {
     @Column(name = "unit_price")
     private Integer unitPrice;
 
-    @Column(name = "start_date")
-    private Timestamp startDate;
+    @Column(name = "item_name")
+    private String itemName;
 
-    @Column(name = "end_date")
-    private Timestamp endDate;
+    @Column(name = "item_explain")
+    private String itemExplain;
 }

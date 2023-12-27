@@ -1,0 +1,82 @@
+package com.github.shoppingmall.shopping_mall.repository.Post;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Timestamp;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@ToString
+@Builder
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@Table(name = "POST")
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
+    private Integer postId; // 게시글 ID
+
+    @Column(name = "title", nullable = false)
+    private String title; // 게시글 제목
+
+    @Column(name = "content", nullable = false)
+    private String content; // 게시글 내용
+
+    @Column(name = "user_id", nullable = false)
+    private Integer userId; // 회원 ID
+
+    @Column(name = "item_id", nullable = false)
+    private Integer itemId;
+
+    @Column(name = "view_cnt")
+    private Integer viewCnt;
+
+    @Column(name = "is_deleted", nullable = true)
+    private Integer isDeleted;
+
+    @Column(name = "create_date", updatable = false)
+    @CreationTimestamp
+    private Timestamp createDate;
+
+    @Column(name = "update_date", insertable = false)
+    @UpdateTimestamp
+    private Timestamp updateDate;
+
+    @Column(name = "delete_date", insertable = false)
+    @UpdateTimestamp
+    private Timestamp deleteDate;
+
+    public Post(Post post) {
+        this.setPostId(post.getPostId());
+        this.setTitle(post.getTitle());
+        this.setContent(post.getContent());
+        this.setUserId(post.getUserId());
+        this.setItemId(post.getItemId());
+        this.setViewCnt(post.getViewCnt());
+        this.setIsDeleted(post.getIsDeleted());
+        this.setCreateDate(post.getCreateDate());
+        this.setUpdateDate(post.getUpdateDate());
+        this.setDeleteDate(post.getDeleteDate());
+    }
+
+    public void setPost(Post post) {
+        this.setPostId(post.getPostId());
+        this.setTitle(post.getTitle());
+        this.setContent(post.getContent());
+        this.setUserId(post.getUserId());
+        this.setItemId(post.getItemId());
+        this.setViewCnt(post.getViewCnt());
+        this.setIsDeleted(post.getIsDeleted());
+        this.setCreateDate(post.getCreateDate());
+        this.setUpdateDate(post.getUpdateDate());
+        this.setDeleteDate(post.getDeleteDate());
+    }
+}
