@@ -27,10 +27,10 @@ public class User {
 
     @Column(name = "password", nullable = false)
     private String password;
-
+/*
     @Column(name = "name", nullable = false)
     private String name;
-
+*/
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
@@ -39,10 +39,10 @@ public class User {
 
     @Column(name = "gender", nullable = false)
     private String gender;
-
+/* -> USER_DELIVERY_ADDR 테이블로 이동
     @Column(name = "address", nullable = false)
     private String address;
-
+*/
     @Column(name = "login_failure_cnt", nullable = false, columnDefinition = "int DEFAULT 0")
     private Integer loginFailureCnt;
 
