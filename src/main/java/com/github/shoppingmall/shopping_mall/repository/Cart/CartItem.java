@@ -1,6 +1,7 @@
 package com.github.shoppingmall.shopping_mall.repository.Cart;
 
 import com.github.shoppingmall.shopping_mall.repository.Item.Item;
+import com.github.shoppingmall.shopping_mall.repository.Item.ItemOption;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,16 +28,18 @@ public class CartItem {
     @JoinColumn(name = "item_id")
     private Item item; // 아이템 ID
 
-    @Column(name = "option_id")
-    private Integer optionId; // 옵션 ID
+    @ManyToOne
+    @JoinColumn(name = "option_id")
+    private ItemOption itemOption; // 옵션 ID
 
     @Column(name = "quantity")
     private Integer quantity; // 수량
 
-    public static CartItem createCartItem(Cart cart, Item item, int quantity){ // 카트 아이템 생성
+    public static CartItem createCartItem(Cart cart, Item item, ItemOption itemOption, int quantity){ // 카트 아이템 생성
         CartItem cartItem = new CartItem();
         cartItem.setCart(cart);
         cartItem.setItem(item);
+        cartItem.setItemOption(itemOption);
         cartItem.setQuantity(quantity);
 
         return cartItem;

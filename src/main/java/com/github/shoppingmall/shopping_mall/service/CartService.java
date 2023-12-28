@@ -5,6 +5,8 @@ import com.github.shoppingmall.shopping_mall.repository.Cart.CartItem;
 import com.github.shoppingmall.shopping_mall.repository.Cart.CartItemRepository;
 import com.github.shoppingmall.shopping_mall.repository.Cart.CartRepository;
 import com.github.shoppingmall.shopping_mall.repository.Item.Item;
+import com.github.shoppingmall.shopping_mall.repository.Item.ItemOption;
+import com.github.shoppingmall.shopping_mall.repository.Item.ItemOptionRepository;
 import com.github.shoppingmall.shopping_mall.repository.Item.ItemRepository;
 import com.github.shoppingmall.shopping_mall.repository.users.User;
 import com.github.shoppingmall.shopping_mall.repository.users.UserRepository;
@@ -27,10 +29,13 @@ public class CartService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final ItemOptionRepository itemOptionRepository;
 
     public Integer addCart(CartItemDto cartItemDto, String email){
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new); // 상품 조회
         User user = userRepository.findByEmail(email); // 회원 조회
+        ItemOption itemOption = itemOptionRepository.findById(cartItemDto.getOptionId()).orElseThrow(EntityNotFoundException::new);
+
 
         Cart cart = cartRepository.findByUserUserId(user.getUserId()); // 장바구니 조회
         if(cart == null){ // 장바구니 처음 사용이면 장바구니 생성
@@ -44,7 +49,7 @@ public class CartService {
             savedCartItem.addCount(cartItemDto.getCount()); // 이미 있으면 장바구니 수량 더하기
             return savedCartItem.getCartItemId();
         }else {
-            CartItem cartItem = CartItem.createCartItem(cart, item, cartItemDto.getCount()); // cartItem 엔티티 생성
+            CartItem cartItem = CartItem.createCartItem(cart, item, itemOption, cartItemDto.getCount()); // cartItem 엔티티 생성
             cartItemRepository.save(cartItem); // 장바구니에 들어갈 상품 저장
             return cartItem.getCartItemId();
         }
@@ -53,7 +58,7 @@ public class CartService {
     // TODO. 장바구니에서 주문 기능 구현 X, 상품 이미지 가져와서 장바구니 리스트 생성 X
 //    @Transactional
 //    public List<CartDetailDto> getCartList(String email) { // 장바구니에 들어있는 상품 조회
-//        List<CartDetailDto> cartDetailDtoList = new ArrayList<>();
+//        List<CartDetailDto>    cartDetailDtoList = new ArrayList<>();
 //
 //        User user = userRepository.findByEmail(email);
 //

@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Entity
 @ToString
 @Table(name = "ITEM_OPTION")
-public class ItemOption implements Serializable {
+public class ItemOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "option_id")
