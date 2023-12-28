@@ -39,10 +39,4 @@ public class Item {
 
     @Column(name = "unit_price")
     private Integer unitPrice; // 단가
-
-    @Column(name = "start_date")
-    private Timestamp startDate; // 판매시작일자
-
-    @Column(name = "end_date")
-    private Timestamp endDate; // 판매종료일자
 }
