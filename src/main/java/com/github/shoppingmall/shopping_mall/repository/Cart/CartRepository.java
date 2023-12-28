@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Integer> {
-    Cart findByUserId(Integer userId);
+    Cart findByUserUserId(Integer userId); // 현재 로그인한 회원 장바구니 찾기
 }

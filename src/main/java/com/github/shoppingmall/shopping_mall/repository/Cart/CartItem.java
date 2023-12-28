@@ -1,6 +1,7 @@
 package com.github.shoppingmall.shopping_mall.repository.Cart;
 
 import com.github.shoppingmall.shopping_mall.repository.Item.Item;
+import com.github.shoppingmall.shopping_mall.repository.Item.ItemOption;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,28 +20,36 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer cartItemId; // 장바구니에 들어있는 상품 ID
 
-    @Column(name = "cart_id")
-    private Integer cartId; // 장바구니 ID
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart; // 장바구니 ID
 
-    @Column(name = "item_id")
-    private Integer itemId; // 아이템 ID
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item; // 아이템 ID
 
-    @Column(name = "option_id")
-    private Integer optionId; // 옵션 ID
+    @ManyToOne
+    @JoinColumn(name = "option_id")
+    private ItemOption itemOption; // 옵션 ID
 
     @Column(name = "quantity")
     private Integer quantity; // 수량
 
-    public static CartItem createCartItem(Cart cart, Item item, int quantity){
+    public static CartItem createCartItem(Cart cart, Item item, ItemOption itemOption, int quantity){ // 카트 아이템 생성
         CartItem cartItem = new CartItem();
-        cartItem.setCartId(cart.getCartId());
-        cartItem.setItemId(item.getItemId());
-        cartItem.setQuantity(cartItem.quantity);
+        cartItem.setCart(cart);
+        cartItem.setItem(item);
+        cartItem.setItemOption(itemOption);
+        cartItem.setQuantity(quantity);
 
         return cartItem;
     }
 
     public void addCount(int quantity){
         this.quantity += quantity;
+    }
+
+    public void updateCount(int quantity){ // 장바구니 상품 수량 변경
+        this.quantity = quantity;
     }
 }

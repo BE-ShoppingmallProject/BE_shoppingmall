@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByNickname(String nickname);
 
+    User findByEmail(String email); // 카트 서비스에서 현재 로그인한 회원 구별을 위해!
+
 }
