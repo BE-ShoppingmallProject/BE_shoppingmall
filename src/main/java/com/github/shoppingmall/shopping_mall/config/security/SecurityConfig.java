@@ -5,6 +5,8 @@ import com.github.shoppingmall.shopping_mall.web.filters.JwtAuthenticationFilter
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -39,18 +41,26 @@ public class SecurityConfig {
                 .authorizeRequests(a ->
                         a
                                 .requestMatchers("/resources/static/**", "/api/sign/*").permitAll()
-                                .requestMatchers("/admin/**", "/api/account/set-super-user","/api/customer/*").hasAnyRole("ADMIN","SUPERUSER")
-                                .requestMatchers("/api/v1/user/logout").hasAnyRole("ADMIN", "SUPERUSER", "USER")
-                                .requestMatchers("/api/account/**").hasAnyRole("ADMIN", "SUPERUSER", "USER")
+                                .requestMatchers("/admin/**", "/api/account/set-super-user","/api/seller/*").hasAnyRole("ADMIN","SELLER")
+                                .requestMatchers("/api/sign/logout").hasAnyRole("ADMIN", "NORMAL", "SELLER")
+                                .requestMatchers("/api/account/**").hasAnyRole("ADMIN", "NORMAL", "SELLER")
 
                 )
-//                .logout(l-> {
-//                    l.logoutRequestMatcher(new AntPathRequestMatcher("/api/account/logout"));
-//                    l.logoutSuccessUrl("/api/account/login");
-//                    l.invalidateHttpSession(true);
-//
-//                })
+                .logout(l -> {
+                    l.logoutUrl("/api/sign/logout"); // 로그아웃을 수행할 URL
+                    l.logoutSuccessHandler((rq, rs, a) -> {}); // 로그아웃 성공 시의 동작 (비워둠)
+                    l.invalidateHttpSession(true);
+                    l.deleteCookies("JSESSIONID");
+                })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
+
 }

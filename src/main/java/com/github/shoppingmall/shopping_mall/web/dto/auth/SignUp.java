@@ -20,6 +20,7 @@ public class SignUp {
     private String phoneNumber;
     private String gender;
     private String address;
+    private String profileImagePath;
 
 }
 
