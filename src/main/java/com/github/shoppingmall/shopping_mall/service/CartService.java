@@ -50,6 +50,7 @@ public class CartService {
         }
     }
 
+    // TODO. 장바구니에서 주문 기능 구현 X, 상품 이미지 가져와서 장바구니 리스트 생성 X
 //    @Transactional
 //    public List<CartDetailDto> getCartList(String email) { // 장바구니에 들어있는 상품 조회
 //        List<CartDetailDto> cartDetailDtoList = new ArrayList<>();
