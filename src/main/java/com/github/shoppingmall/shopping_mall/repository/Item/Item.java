@@ -1,9 +1,14 @@
 package com.github.shoppingmall.shopping_mall.repository.Item;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.github.shoppingmall.shopping_mall.repository.SellerItem.StockItem;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,4 +37,10 @@ public class Item {
 
     @Column(name = "item_explain")
     private String itemExplain;
+
+    @OneToMany(mappedBy = "item")
+    private Set<ItemOption> itemOptions;
+
+    @OneToMany(mappedBy = "item")
+    private Set<StockItem> stockItems;
 }
