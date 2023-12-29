@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StockItemRepository extends JpaRepository<StockItem, Integer> {
 
+    StockItem findByItem_ItemIdAndOption_OptionId(Integer itemId, Integer optionId);
 }

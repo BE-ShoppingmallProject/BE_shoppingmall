@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "post_file")
+@Table(name = "POST_FILE")
 public class PostFile {
     @Id
     @Column(name = "post_file_id", nullable = false)
