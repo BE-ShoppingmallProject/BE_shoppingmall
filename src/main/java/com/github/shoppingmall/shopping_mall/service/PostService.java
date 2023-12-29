@@ -74,7 +74,7 @@ public class PostService {
     public Boolean updatePost(CustomUserDetails customUserDetails, PostUpdataionDto postUpdataionDto) throws IOException  {
 
         logger.info("update post");
-        //User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
 
         Integer postId = postUpdataionDto.getPostId();
 
@@ -83,7 +83,7 @@ public class PostService {
 
         ItemCreationDto updateItemDto = objectMapper.readValue(postUpdataionDto.getUpdataionDtoJson(), ItemCreationDto.class);
 
-        User user = userRepository.findByEmail(updateItemDto.getItem().getEmail());
+        //User user = userRepository.findByEmail(updateItemDto.getItem().getEmail());
 
         Item item = covertToEntity( updateItemDto.getItem() );
         logger.info("email : " + updateItemDto.getItem().getEmail() );
@@ -301,12 +301,12 @@ public class PostService {
     @Transactional("tmJpa1")
     public Boolean addPost(CustomUserDetails customUserDetails, PostCreationDto postCreationDto) throws IOException, NotFoundException {
 
-        //User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));;
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));;
 
         // Item 저장 로직
         // ItemOption, StockItem 등 관련 엔티티 처리
         ItemCreationDto creationDto = objectMapper.readValue(postCreationDto.getCreationDtoJson(), ItemCreationDto.class);
-        User user  = userRepository.findByEmail(creationDto.getItem().getEmail());
+        //User user  = userRepository.findByEmail(creationDto.getItem().getEmail());
 
         Item item = covertToEntity( creationDto.getItem() );
         item.setUserId(user.getUserId());
