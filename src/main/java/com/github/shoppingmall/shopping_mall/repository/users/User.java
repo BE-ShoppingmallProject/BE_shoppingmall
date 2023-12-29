@@ -55,8 +55,9 @@ public class User {
     @Column(name = "sell_role", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'N'")
     private String sellRole;
 
+    @Column(name = "status", nullable = true)
     @Enumerated(EnumType.STRING)
-    private UserStatus status = UserStatus.ACTIVE; // 회원 상태 (ACTIVE, DELETED)
+    private UserStatus status; // 회원 상태 (ACTIVE, DELETED)
 
     @Column(name = "profile_image_path")
     private String profileImagePath;
