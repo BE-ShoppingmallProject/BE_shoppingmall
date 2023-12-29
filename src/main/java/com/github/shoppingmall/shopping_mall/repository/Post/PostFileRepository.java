@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface PostFileRepository extends JpaRepository<PostFile, Integer> {
     List<PostFile> findByPost_PostIdAndDelegateThumbNailAndIsDeleted(Integer postId, char delegateThumbNail, char isDeleted);
+
+    List<PostFile> findByPost(Post post);
 }
