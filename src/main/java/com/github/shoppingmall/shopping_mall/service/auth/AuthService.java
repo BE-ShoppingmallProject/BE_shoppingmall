@@ -75,6 +75,7 @@ public class AuthService {
 
         String saveProfileImage = saveProfileImage(profileImagePath);
         user.setProfileImagePath(saveProfileImage);
+        user.setStatus(UserStatus.ACTIVE);
 
         userRepository.save(user);
 
