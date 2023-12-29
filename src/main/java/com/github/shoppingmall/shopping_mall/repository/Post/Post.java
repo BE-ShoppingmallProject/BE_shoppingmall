@@ -1,13 +1,16 @@
 package com.github.shoppingmall.shopping_mall.repository.Post;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.github.shoppingmall.shopping_mall.repository.Item.Item;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,15 +35,19 @@ public class Post {
 
     @Column(name = "user_id", nullable = false)
     private Integer userId; // 회원 ID
-
+/*
     @Column(name = "item_id", nullable = false)
     private Integer itemId;
+*/
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="item_id", nullable = false)
+    private Item item;
 
     @Column(name = "view_cnt")
     private Integer viewCnt;
 
     @Column(name = "is_deleted", nullable = true)
-    private Integer isDeleted;
+    private Character isDeleted;
 
     @Column(name = "create_date", updatable = false)
     @CreationTimestamp
@@ -51,15 +58,17 @@ public class Post {
     private Timestamp updateDate;
 
     @Column(name = "delete_date", insertable = false)
-    @UpdateTimestamp
     private Timestamp deleteDate;
+
+    @OneToMany(mappedBy = "post")
+    private Set<PostFile> postFiles;
 
     public Post(Post post) {
         this.setPostId(post.getPostId());
         this.setTitle(post.getTitle());
         this.setContent(post.getContent());
         this.setUserId(post.getUserId());
-        this.setItemId(post.getItemId());
+       // this.setItemId(post.getItemId());
         this.setViewCnt(post.getViewCnt());
         this.setIsDeleted(post.getIsDeleted());
         this.setCreateDate(post.getCreateDate());
@@ -72,7 +81,7 @@ public class Post {
         this.setTitle(post.getTitle());
         this.setContent(post.getContent());
         this.setUserId(post.getUserId());
-        this.setItemId(post.getItemId());
+       // this.setItemId(post.getItemId());
         this.setViewCnt(post.getViewCnt());
         this.setIsDeleted(post.getIsDeleted());
         this.setCreateDate(post.getCreateDate());

@@ -2,16 +2,23 @@ package com.github.shoppingmall.shopping_mall.web.controller;
 
 import com.github.shoppingmall.shopping_mall.repository.Post.Post;
 import com.github.shoppingmall.shopping_mall.service.PostService;
+import com.github.shoppingmall.shopping_mall.web.dto.post.PostCreationDto;
+import com.github.shoppingmall.shopping_mall.web.dto.post.PostUpdataionDto;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,25 +30,9 @@ public class PostController {
 
     private final PostService postService;
 
-    //@ApiOperation("새 포스트 입력")
-    @PostMapping("/post/add")
-    public ResponseEntity<Map<String,String>> savePost(/* AuthInfo authInfo ,*/ @RequestBody Post post){
-        logger.info("/api/post/add");
-        Map<String, String> response = new HashMap<>();
-
-        Post newPost = postService.savePost(post);
-        if( newPost == null ){
-            response.put("message", "게시물 작성이 실패했습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        else{
-            response.put("message", "게시물이 성공적으로 작성되었습니다.");
-            return ResponseEntity.ok(response);
-        }
-    }
-
-    //@ApiOperation("모든 포스트 조회")
+/*
     @GetMapping("/posts")
+    @Operation(summary = "모든 판매 상품 페이지 조회")
     public ResponseEntity<Map<String, List<Post>>> allPost(){
         logger.info("/api/posts");
         Map<String, List<Post>> response = new HashMap<>();
@@ -49,24 +40,50 @@ public class PostController {
         response.put("posts", posts);
         return ResponseEntity.ok(response);
     }
+*/
 
-    //@ApiOperation("포스트 수정")
-    @PutMapping("/post/update/{post_id}")
-    public ResponseEntity<Map<String, String>> updatePost(
-            @PathVariable("post_id") Integer postId,
-            @RequestBody Post postRequest) {
-        logger.info("/api/post/update");
-
-        Post updatedPost = postService.updatePost(postId, postRequest);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "게시물이 수정되었습니다.");
-        response.put("postId", updatedPost.getPostId().toString());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    @GetMapping("/post/seller/userid")
+    @Operation(summary = "모든 판매 상품 페이지 조회(판매자 ID)")
+    public ResponseEntity<Page<Post>> allPostByUserId(
+            @RequestParam Integer userId,
+            Pageable pageable
+    ) {
+        Page<Post> posts = postService.getPostsByUserId(userId, pageable);
+        return ResponseEntity.ok(posts);
     }
 
-    //@ApiOperation("포스트 삭제")
+    @PostMapping(value = "/post/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "판매 상품 페이지 등록")
+    public ResponseEntity<Map<String, String>> addPost(@ModelAttribute @Valid PostCreationDto postCreationDto) throws Exception{
+        logger.info("/api/post/add");
+        Map<String, String> response = new HashMap<>();
+        Boolean isSave = postService.addPost(postCreationDto);
+        if( isSave == true ) {
+            response.put("message", "게시물이 성공적으로 작성되었습니다.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            response.put("message", "게시물 작성이 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping(value="/post/update/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "판매 상품 페이지 수정")
+    public ResponseEntity<Map<String, String>> updatePost(
+            @ModelAttribute @Valid PostUpdataionDto postUpdataionDto) throws IOException {
+
+        logger.info("/api/post/update");
+        Map<String, String> response = new HashMap<>();
+        Boolean isUpdate = postService.updatePost(postUpdataionDto);
+        if( isUpdate == true ) {
+            response.put("message", "게시물이 성공적으로 수정되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else {
+            response.put("message", "게시물 수정이 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @DeleteMapping("/delete/{post_id}")
     public ResponseEntity<Map<String, String>> deletePost(@PathVariable("post_id") Integer postId){
         logger.info("/api/post/delete");
