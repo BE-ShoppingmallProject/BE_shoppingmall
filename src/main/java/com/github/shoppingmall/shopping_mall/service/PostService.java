@@ -69,17 +69,12 @@ public class PostService {
     @org.springframework.beans.factory.annotation.Value("${post.file_path}")
     private String UPLOAD_DIR;
 
-    @Transactional("tmJpa1")
-    public List<Post> allPost() {
-        logger.info("all post");
-        return postRepository.findAll();
-    }
 
     @Transactional("tmJpa1")
     public Boolean updatePost(CustomUserDetails customUserDetails, PostUpdataionDto postUpdataionDto) throws IOException  {
 
         logger.info("update post");
-        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
+        //User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
 
         Integer postId = postUpdataionDto.getPostId();
 
@@ -87,6 +82,8 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
         ItemCreationDto updateItemDto = objectMapper.readValue(postUpdataionDto.getUpdataionDtoJson(), ItemCreationDto.class);
+
+        User user = userRepository.findByEmail(updateItemDto.getItem().getEmail());
 
         Item item = covertToEntity( updateItemDto.getItem() );
         logger.info("email : " + updateItemDto.getItem().getEmail() );
@@ -157,7 +154,7 @@ public class PostService {
         }
 
         // 썸네일 이미지 저장( 무조건 있어야 함 )
-        if( postUpdataionDto.getThumbNailImgFile().isEmpty() ){
+        if( postUpdataionDto.getThumbNailImgFile() == null || postUpdataionDto.getThumbNailImgFile().isEmpty() == true ){
             logger.info("thumnail Img file Empty");
             // 기존 정보 그대로 유지.
         } else {
@@ -200,7 +197,7 @@ public class PostService {
 
         // 파일 수정
 
-        if( postUpdataionDto.getFiles().size() == 0 ){
+        if( postUpdataionDto.getFiles() == null || postUpdataionDto.getFiles().size() == 0 || postUpdataionDto.getFiles().isEmpty() == true ){
             logger.info("Img file Empty");
             // 기존 정보 그대로 유지.
         } else {
@@ -304,11 +301,12 @@ public class PostService {
     @Transactional("tmJpa1")
     public Boolean addPost(CustomUserDetails customUserDetails, PostCreationDto postCreationDto) throws IOException, NotFoundException {
 
-        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));;
+        //User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));;
 
         // Item 저장 로직
         // ItemOption, StockItem 등 관련 엔티티 처리
         ItemCreationDto creationDto = objectMapper.readValue(postCreationDto.getCreationDtoJson(), ItemCreationDto.class);
+        User user  = userRepository.findByEmail(creationDto.getItem().getEmail());
 
         Item item = covertToEntity( creationDto.getItem() );
         item.setUserId(user.getUserId());
@@ -485,11 +483,7 @@ public class PostService {
         return newItemOption;
     }
 
-    public Page<Post> getPostsByUserId(Integer userId, Pageable pageable) {
-        return postRepository.findByUserId(userId, pageable);
-    }
-
-    public Page<PostResponseBySeller> getPostBySellerUser(Integer userId, Pageable pageable) throws IllegalAccessException {
+    public Page<PostResponseByNormal> getPostBySellerUser(Integer userId, Pageable pageable) throws IllegalAccessException {
         // 1-1. Check If the user is a seller
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("Invalid user ID"));
@@ -499,9 +493,10 @@ public class PostService {
         }
 
         // 1-2. Fetch posts and related data
-        Page<Post> posts = postRepository.findByUserId(userId, pageable);
-        return posts.map(this::covertToPostResponseBySeller);
+        Page<Post> posts = postRepository.findByUserIdAndIsDeleted(userId, 'N', pageable);
+        return posts.map(this::covertToPostResponseByNormal);
     }
+
 
     private PostResponseBySeller covertToPostResponseBySeller(Post post){
         PostResponseBySeller response = new PostResponseBySeller();
@@ -551,7 +546,7 @@ public class PostService {
     }
 
     public Page<PostResponseByNormal> getPostByNormalUser(Pageable pageable) {
-        Page<Post> posts = postRepository.findAll(pageable);
+        Page<Post> posts = postRepository.findByIsDeleted('N',pageable);
         return posts.map(this::covertToPostResponseByNormal);
     }
 
@@ -584,11 +579,14 @@ public class PostService {
     }
 
     public Optional<PostResponse> getPostById(Integer postId) {
-        return postRepository.findById(postId)
+        Optional<PostResponse> response =  postRepository.findByPostIdAndIsDeleted(postId, 'N')
                 .filter(post -> post.getItem().getStockItems().stream()
                         .anyMatch(stockItem -> "Sale".equals(stockItem.getItemStatus())))
                 .map(this::convertToPostResponse);
+
+        return response;
     }
+
 
     public PostResponse convertToPostResponse(Post post){
         PostResponse response = new PostResponse();
@@ -600,7 +598,6 @@ public class PostService {
         response.setUpdateDate(post.getUpdateDate());
         response.setSellerUserId(post.getUserId());
 
-        logger.error("test1");
         // Item 정보 설정
         Item item = post.getItem();
         if( item != null ){
@@ -610,13 +607,10 @@ public class PostService {
             response.setUnitPrice(item.getUnitPrice());
         }
 
-        logger.error("test2");
-
         // Item Option 설정
         // itemId에 해당하는 ItemOption 조회
         List<ItemOption> itemOptions = itemOptionRepository.findByItem_ItemId(post.getItem().getItemId());
 
-        logger.error("test3");
         if (itemOptions != null && !itemOptions.isEmpty()) {
             // itemOptionList 설정
             List<PostResponse_ItemOption> itemOptionList = new ArrayList<>();
@@ -624,10 +618,11 @@ public class PostService {
                 // StockItem의 quantity 확인
                 StockItem curStockItem = stockItemRepository.findByItem_ItemIdAndOption_OptionId(post.getItem().getItemId(), option.getOptionId());
 
-                logger.error("test4");
                 if (curStockItem.getQuantity() > 0) {
                     PostResponse_ItemOption responseOption = new PostResponse_ItemOption();
                     responseOption.setOptionId(option.getOptionId());
+                    responseOption.setStockId(curStockItem.getStockId());
+                    responseOption.setQuantity(curStockItem.getQuantity());
                     responseOption.setOptionContent(option.getOptionContent());
                     responseOption.setAddPrice(option.getAdditionalPrice());
                     itemOptionList.add(responseOption);
@@ -652,4 +647,31 @@ public class PostService {
 
         return response;
     }
+
+    @Transactional("tmJpa1")
+    public Page<PostResponseByNormal> searchPosts(String type, String keyword, Pageable pageable) {
+        if( type == null || type.isEmpty() || keyword == null || keyword.isEmpty() ) {
+            Page<Post> posts = postRepository.findByIsDeleted('N',pageable);
+            return posts.map(this::covertToPostResponseByNormal);
+        }
+
+        Page<Post> posts = postRepository.searchByTypeWithDetails(type, keyword, pageable);
+        return posts.map(this::covertToPostResponseByNormal);
+    }
+
+    public Page<PostResponse> getPost4SellerUser(CustomUserDetails customUserDetails, Pageable pageable) throws IllegalAccessException, NotFoundException {
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
+
+        // 1-1. Check If the user is a seller
+        UserRoles userRoles = userRolesRepository.findByUser_UserId(user.getUserId());
+        if(!"ROLE_SELLER".equals(userRoles.getRoles().getName())) {
+            throw new IllegalAccessException("No Permission");
+        }
+
+        // 1-2. Fetch posts and related data
+        Page<Post> posts = postRepository.findByUserIdAndIsDeleted(user.getUserId(), 'N', pageable);
+        return posts.map(this::convertToPostResponse);
+    }
+
+
 }
