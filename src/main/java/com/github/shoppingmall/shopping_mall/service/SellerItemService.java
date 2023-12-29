@@ -56,22 +56,39 @@ public class SellerItemService {
             optionList.add(saveOption);
         }
 
-        for( int i = 0; i < newItemDto.getStockItems().size(); i++ ){
-
-            StockItemDto stockItemDto = newItemDto.getStockItems().get(i);
-            ItemOption itemOption = optionList.get(i);
-
-            StockItem stockItem = convertToEntity( stockItemDto );
+        if( optionList.size() == 0 ){
+            StockItemDto stockItemDto = newItemDto.getStockItems().get(0);
+            StockItem stockItem = convertToEntity(stockItemDto);
             stockItem.setItem(item);
-            stockItem.setOption(itemOption);
             stockItem.setUser(user);
 
             StockItem saveStockItem = stockItemRepository.save(stockItem);
-            if( saveStockItem == null ){
+            if (saveStockItem == null) {
                 logger.error("stock_item save fail");
                 return false;
             }
+
+        } else {
+            for (int i = 0; i < newItemDto.getStockItems().size(); i++) {
+                StockItemDto stockItemDto = newItemDto.getStockItems().get(i);
+                ItemOption itemOption = optionList.get(i);
+
+                StockItem stockItem = convertToEntity(stockItemDto);
+                stockItem.setItem(item);
+                stockItem.setOption(itemOption);
+                stockItem.setUser(user);
+
+                StockItem saveStockItem = stockItemRepository.save(stockItem);
+                if (saveStockItem == null) {
+                    logger.error("stock_item save fail");
+                    return false;
+                }
+            }
         }
+
+
+
+
 
         return true;
     }

@@ -1,7 +1,10 @@
 package com.github.shoppingmall.shopping_mall.repository.Post;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
@@ -18,8 +21,10 @@ public class PostFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer postFileId;
 
-    @Column(name = "post_id")
-    private Integer postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    @JsonIgnore
+    private Post post;
 
     @Column(name = "user_id")
     private Integer userId;
@@ -37,20 +42,21 @@ public class PostFile {
     private String filePath;
 
     @Column(name = "file_size")
-    private String fileSize;
+    private Integer fileSize;
 
     @Column(name = "file_type")
     private String fileType;
 
     @Column(name = "delegate_thumb_nail")
-    private String delegateThumbNail;
+    private Character delegateThumbNail;
 
     @Column(name = "is_deleted")
     private Character isDeleted;
 
-    @Column(name = "create_date")
+    @Column(name = "create_date", updatable = false)
+    @CreationTimestamp
     private Timestamp createDate;
 
-    @Column(name = "delete_date")
+    @Column(name = "delete_date", insertable = false)
     private Timestamp deleteDate;
 }
