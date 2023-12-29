@@ -1,5 +1,6 @@
-package com.github.shoppingmall.shopping_mall.repository.Post;
+package com.github.shoppingmall.shopping_mall.repository.Mypage;
 
+import com.github.shoppingmall.shopping_mall.repository.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,21 +12,16 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "post_file")
-public class PostFile {
+@Table(name = "USER_IMG_FILE")
+public class UserImgFile {
     @Id
-    @Column(name = "post_file_id", nullable = false)
+    @Column(name = "user_img_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer postFileId;
+    private Integer userImgId;
 
-    @Column(name = "post_id")
-    private Integer postId;
-
-    @Column(name = "user_id")
-    private Integer userId;
-
-    @Column(name = "item_id")
-    private Integer itemId;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "origin_file_name")
     private String originFileName;
@@ -41,9 +37,6 @@ public class PostFile {
 
     @Column(name = "file_type")
     private String fileType;
-
-    @Column(name = "delegate_thumb_nail")
-    private String delegateThumbNail;
 
     @Column(name = "is_deleted")
     private Character isDeleted;
