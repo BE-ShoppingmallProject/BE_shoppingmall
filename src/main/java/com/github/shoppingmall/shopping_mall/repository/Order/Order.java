@@ -1,17 +1,15 @@
 package com.github.shoppingmall.shopping_mall.repository.Order;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @ToString
-@Table(name = "ORDER")
+@Table(name = "`ORDER`")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
