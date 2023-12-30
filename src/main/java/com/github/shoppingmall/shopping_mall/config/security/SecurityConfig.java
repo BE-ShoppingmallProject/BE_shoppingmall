@@ -43,7 +43,7 @@ public class SecurityConfig {
                                 .requestMatchers("/resources/static/**", "/api/sign/*").permitAll()
                                 .requestMatchers("/admin/**", "/api/account/set-super-user","/api/seller/*").hasAnyRole("ADMIN","SELLER")
                                 .requestMatchers("/api/sign/logout").hasAnyRole("ADMIN", "NORMAL", "SELLER")
-                                .requestMatchers("/api/account/**").hasAnyRole("ADMIN", "NORMAL", "SELLER")
+                                .requestMatchers("/api/account/**", "/api/items/**", "/api/cart/**", "/api/cartItem/**", "/api/post/**", "/api/posts/**", "/api/delete/**").hasAnyRole("ADMIN", "NORMAL", "SELLER")
 
                 )
                 .logout(l -> {

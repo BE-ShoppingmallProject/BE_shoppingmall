@@ -24,6 +24,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +43,7 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Transactional("tmJpa1")
     public String signUp(SignUp signUpRequest) {
         String email = signUpRequest.getEmail();
         String password = signUpRequest.getPassword();
@@ -90,6 +92,7 @@ public class AuthService {
 
     }
 
+    @Transactional("tmJpa1")
     public List<String> login(LoginDto loginRequest) {
 
         String email = loginRequest.getEmail();
