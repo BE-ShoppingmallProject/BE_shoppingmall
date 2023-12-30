@@ -1,6 +1,5 @@
 package com.github.shoppingmall.shopping_mall.repository.SellerItem;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.shoppingmall.shopping_mall.repository.Item.Item;
 import com.github.shoppingmall.shopping_mall.repository.Item.ItemOption;
@@ -16,19 +15,17 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Entity
 @ToString
-@Table(name = "STOCK_ITEM")
-public class StockItem {
+@Table(name = "STOCK_ADJUSTMENT")
+public class StockAdjustment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "stock_id")
-    private Integer stockId;
+    @Column(name = "adjustment_id")
+    private Integer adjustmentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
-    //@Column(name = "user_id")
-    //private Integer userId;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
@@ -43,12 +40,9 @@ public class StockItem {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "start_date")
-    private Timestamp startDate;
+    @Column(name ="reason")
+    private String reason;
 
-    @Column(name = "end_date")
-    private Timestamp endDate;
-
-    @Column(name = "item_status")
-    private String itemStatus;
+    @Column(name = "adjustment_date")
+    private Timestamp adjustmentDate;
 }

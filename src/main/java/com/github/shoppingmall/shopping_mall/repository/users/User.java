@@ -27,10 +27,10 @@ public class User {
 
     @Column(name = "password", nullable = false)
     private String password;
-/*
+
     @Column(name = "name", nullable = false)
     private String name;
-*/
+
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
@@ -54,6 +54,13 @@ public class User {
 
     @Column(name = "sell_role", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'N'")
     private String sellRole;
+
+    @Column(name = "status", nullable = true)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status; // 회원 상태 (ACTIVE, DELETED)
+
+    @Column(name = "profile_image_path")
+    private String profileImagePath;
 
     @Column(name = "create_date")
     private LocalDateTime createDate;

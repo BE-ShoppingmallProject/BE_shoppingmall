@@ -9,24 +9,31 @@ import com.github.shoppingmall.shopping_mall.repository.Post.Post;
 import com.github.shoppingmall.shopping_mall.repository.Post.PostFile;
 import com.github.shoppingmall.shopping_mall.repository.Post.PostFileRepository;
 import com.github.shoppingmall.shopping_mall.repository.Post.PostRepository;
+import com.github.shoppingmall.shopping_mall.repository.SellerItem.StockAdjustment;
+import com.github.shoppingmall.shopping_mall.repository.SellerItem.StockAdjustmentRepository;
 import com.github.shoppingmall.shopping_mall.repository.SellerItem.StockItem;
 import com.github.shoppingmall.shopping_mall.repository.SellerItem.StockItemRepository;
+import com.github.shoppingmall.shopping_mall.repository.userDetails.CustomUserDetails;
+import com.github.shoppingmall.shopping_mall.repository.user_roles.UserRoles;
+import com.github.shoppingmall.shopping_mall.repository.user_roles.UserRolesRepository;
 import com.github.shoppingmall.shopping_mall.repository.users.User;
 import com.github.shoppingmall.shopping_mall.repository.users.UserRepository;
 import com.github.shoppingmall.shopping_mall.service.exceptions.NotFoundException;
 import com.github.shoppingmall.shopping_mall.service.exceptions.ResourceNotFoundException;
-import com.github.shoppingmall.shopping_mall.web.dto.post.PostCreationDto;
-import com.github.shoppingmall.shopping_mall.web.dto.post.PostUpdataionDto;
+import com.github.shoppingmall.shopping_mall.web.dto.post.*;
 import com.github.shoppingmall.shopping_mall.web.dto.seller_item.ItemCreationDto;
 import com.github.shoppingmall.shopping_mall.web.dto.seller_item.ItemDto;
 import com.github.shoppingmall.shopping_mall.web.dto.seller_item.ItemOptionDto;
 import com.github.shoppingmall.shopping_mall.web.dto.seller_item.StockItemDto;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,10 +46,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -55,6 +60,8 @@ public class PostService {
     private final ItemOptionRepository itemOptionRepository;
     private final PostFileRepository postFileRepository;
     private final ObjectMapper objectMapper;
+    private final UserRolesRepository userRolesRepository;
+    private final StockAdjustmentRepository stockAdjustmentRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
@@ -62,16 +69,13 @@ public class PostService {
     @org.springframework.beans.factory.annotation.Value("${post.file_path}")
     private String UPLOAD_DIR;
 
-    @Transactional("tmJpa1")
-    public List<Post> allPost() {
-        logger.info("all post");
-        return postRepository.findAll();
-    }
 
     @Transactional("tmJpa1")
-    public Boolean updatePost(PostUpdataionDto postUpdataionDto) throws IOException  {
+    public Boolean updatePost(CustomUserDetails customUserDetails, PostUpdataionDto postUpdataionDto) throws IOException  {
 
         logger.info("update post");
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
+
         Integer postId = postUpdataionDto.getPostId();
 
         Post existingPost = postRepository.findById(postId)
@@ -79,9 +83,10 @@ public class PostService {
 
         ItemCreationDto updateItemDto = objectMapper.readValue(postUpdataionDto.getUpdataionDtoJson(), ItemCreationDto.class);
 
+        //User user = userRepository.findByEmail(updateItemDto.getItem().getEmail());
+
         Item item = covertToEntity( updateItemDto.getItem() );
         logger.info("email : " + updateItemDto.getItem().getEmail() );
-        User user = userRepository.findByEmailFetchJoin(updateItemDto.getItem().getEmail()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
         item.setUserId(user.getUserId());
         item.setItemId(updateItemDto.getItem().getItemId());
         Item saveItem = itemRepository.save(item);
@@ -149,7 +154,7 @@ public class PostService {
         }
 
         // 썸네일 이미지 저장( 무조건 있어야 함 )
-        if( postUpdataionDto.getThumbNailImgFile().isEmpty() ){
+        if( postUpdataionDto.getThumbNailImgFile() == null || postUpdataionDto.getThumbNailImgFile().isEmpty() == true ){
             logger.info("thumnail Img file Empty");
             // 기존 정보 그대로 유지.
         } else {
@@ -192,7 +197,7 @@ public class PostService {
 
         // 파일 수정
 
-        if( postUpdataionDto.getFiles().size() == 0 ){
+        if( postUpdataionDto.getFiles() == null || postUpdataionDto.getFiles().size() == 0 || postUpdataionDto.getFiles().isEmpty() == true ){
             logger.info("Img file Empty");
             // 기존 정보 그대로 유지.
         } else {
@@ -253,20 +258,57 @@ public class PostService {
     }
 
     @Transactional("tmJpa1")
-    public boolean deletePost(Integer postId){
+    public boolean deletePost(CustomUserDetails customUserDetails, Integer postId) throws NotFoundException, EntityNotFoundException{
         logger.info("delete post");
-        postRepository.deleteById(postId);
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));;
+        Post post = postRepository.findById(postId).orElseThrow(()->new EntityNotFoundException("삭제할 판매상품 페이지가 없습니다."));
+
+        // Update is_deleted in POST and POST_FILE
+        post.setIsDeleted('Y');
+        post.setDeleteDate(new Timestamp(System.currentTimeMillis()));
+        postRepository.save(post);
+
+        List<PostFile> postFiles = postFileRepository.findByPost(post);
+        for( PostFile postFile : postFiles){
+            postFile.setIsDeleted('Y');
+            postFile.setDeleteDate(new Timestamp(System.currentTimeMillis()));
+            postFileRepository.save(postFile);
+        }
+
+        // Update STOCK_ADJUSTMENT Table
+        if( post.getItem().getItemOptions().size() == 0 ){
+            StockAdjustment stockAdjustment = new StockAdjustment();
+            stockAdjustment.setUser(user);
+            stockAdjustment.setItem(post.getItem());
+            stockAdjustment.setQuantity(0);
+            stockAdjustment.setReason("DELETE POST");
+            stockAdjustmentRepository.save(stockAdjustment);
+        } else {
+            for (ItemOption itemOption : post.getItem().getItemOptions()) {
+                StockAdjustment stockAdjustment = new StockAdjustment();
+                stockAdjustment.setUser(user);
+                stockAdjustment.setItem(post.getItem());
+                stockAdjustment.setOption(itemOption);
+                stockAdjustment.setQuantity(0);
+                stockAdjustment.setReason("DELETE POST");
+                stockAdjustmentRepository.save(stockAdjustment);
+            }
+        }
+
         return true;
     }
 
     @Transactional("tmJpa1")
-    public Boolean addPost(PostCreationDto postCreationDto) throws IOException  {
+    public Boolean addPost(CustomUserDetails customUserDetails, PostCreationDto postCreationDto) throws IOException, NotFoundException {
+
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));;
+
         // Item 저장 로직
         // ItemOption, StockItem 등 관련 엔티티 처리
         ItemCreationDto creationDto = objectMapper.readValue(postCreationDto.getCreationDtoJson(), ItemCreationDto.class);
+        //User user  = userRepository.findByEmail(creationDto.getItem().getEmail());
 
         Item item = covertToEntity( creationDto.getItem() );
-        User user = userRepository.findByEmailFetchJoin(creationDto.getItem().getEmail()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
         item.setUserId(user.getUserId());
         Item saveItem = itemRepository.save(item);
         if( saveItem == null ){
@@ -441,7 +483,195 @@ public class PostService {
         return newItemOption;
     }
 
-    public Page<Post> getPostsByUserId(Integer userId, Pageable pageable) {
-        return postRepository.findByUserId(userId, pageable);
+    public Page<PostResponseByNormal> getPostBySellerUser(Integer userId, Pageable pageable) throws IllegalAccessException {
+        // 1-1. Check If the user is a seller
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new IllegalArgumentException("Invalid user ID"));
+        UserRoles userRoles = userRolesRepository.findByUser_UserId(userId);
+        if(!"ROLE_SELLER".equals(userRoles.getRoles().getName())) {
+            throw new IllegalAccessException("No Permission");
+        }
+
+        // 1-2. Fetch posts and related data
+        Page<Post> posts = postRepository.findByUserIdAndIsDeleted(userId, 'N', pageable);
+        return posts.map(this::covertToPostResponseByNormal);
     }
+
+
+    private PostResponseBySeller covertToPostResponseBySeller(Post post){
+        PostResponseBySeller response = new PostResponseBySeller();
+        response.setPostId(post.getPostId());
+        response.setTitle(post.getTitle());
+        response.setContent(post.getContent());
+        response.setViewCnt(post.getViewCnt());
+        response.setCreateDate(post.getCreateDate());
+        response.setUpdateDate(post.getUpdateDate());
+        response.setDeleteDate(post.getDeleteDate());
+
+        // Item 정보 설정
+        Item item = post.getItem();
+        if( item != null ){
+            response.setItemId(item.getItemId());
+            response.setItemName(item.getItemName());
+            response.setItemExplain(item.getItemExplain());
+            response.setUnitPrice(item.getUnitPrice());
+        }
+
+        // StockItem 정보 설정
+        int cur_quantity = 0;
+        String cur_itemStatus = "Sale";
+        boolean isSale = false;
+        Set<StockItem> stockItems = item.getStockItems();
+        for( StockItem curItem : stockItems){
+            cur_quantity += curItem.getQuantity();
+            if( cur_itemStatus.equals(curItem.getItemStatus()) ){
+                isSale = true;
+            }
+        }
+
+        if( isSale == true ) {
+            response.setItemStatus("Sale");
+        } else {
+            response.setItemStatus("SoldOut");
+        }
+        response.setQuantity(cur_quantity);
+
+        // PostFile 설정
+        Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
+                .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
+                .findFirst();
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getFilePath() + pf.getStoredFileName()).orElse(null));
+
+        return response;
+    }
+
+    public Page<PostResponseByNormal> getPostByNormalUser(Pageable pageable) {
+        Page<Post> posts = postRepository.findByIsDeleted('N',pageable);
+        return posts.map(this::covertToPostResponseByNormal);
+    }
+
+    public PostResponseByNormal covertToPostResponseByNormal(Post post){
+        PostResponseByNormal response = new PostResponseByNormal();
+        response.setPostId(post.getPostId());
+        response.setTitle(post.getTitle());
+        response.setContent(post.getContent());
+        response.setViewCnt(post.getViewCnt());
+        response.setCreateDate(post.getCreateDate());
+        response.setUpdateDate(post.getUpdateDate());
+        response.setSellerUserId(post.getUserId());
+
+        // Item 정보 설정
+        Item item = post.getItem();
+        if( item != null ){
+            response.setItemId(item.getItemId());
+            response.setItemName(item.getItemName());
+            response.setItemExplain(item.getItemExplain());
+            response.setUnitPrice(item.getUnitPrice());
+        }
+
+        // PostFile 설정
+        Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
+                .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
+                .findFirst();
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getFilePath() + pf.getStoredFileName()).orElse(null));
+
+        return response;
+    }
+
+    public Optional<PostResponse> getPostById(Integer postId) {
+        Optional<PostResponse> response =  postRepository.findByPostIdAndIsDeleted(postId, 'N')
+                .filter(post -> post.getItem().getStockItems().stream()
+                        .anyMatch(stockItem -> "Sale".equals(stockItem.getItemStatus())))
+                .map(this::convertToPostResponse);
+
+        return response;
+    }
+
+
+    public PostResponse convertToPostResponse(Post post){
+        PostResponse response = new PostResponse();
+        response.setPostId(post.getPostId());
+        response.setTitle(post.getTitle());
+        response.setContent(post.getContent());
+        response.setViewCnt(post.getViewCnt());
+        response.setCreateDate(post.getCreateDate());
+        response.setUpdateDate(post.getUpdateDate());
+        response.setSellerUserId(post.getUserId());
+
+        // Item 정보 설정
+        Item item = post.getItem();
+        if( item != null ){
+            response.setItemId(item.getItemId());
+            response.setItemName(item.getItemName());
+            response.setItemExplain(item.getItemExplain());
+            response.setUnitPrice(item.getUnitPrice());
+        }
+
+        // Item Option 설정
+        // itemId에 해당하는 ItemOption 조회
+        List<ItemOption> itemOptions = itemOptionRepository.findByItem_ItemId(post.getItem().getItemId());
+
+        if (itemOptions != null && !itemOptions.isEmpty()) {
+            // itemOptionList 설정
+            List<PostResponse_ItemOption> itemOptionList = new ArrayList<>();
+            for (ItemOption option : itemOptions) {
+                // StockItem의 quantity 확인
+                StockItem curStockItem = stockItemRepository.findByItem_ItemIdAndOption_OptionId(post.getItem().getItemId(), option.getOptionId());
+
+                if (curStockItem.getQuantity() > 0) {
+                    PostResponse_ItemOption responseOption = new PostResponse_ItemOption();
+                    responseOption.setOptionId(option.getOptionId());
+                    responseOption.setStockId(curStockItem.getStockId());
+                    responseOption.setQuantity(curStockItem.getQuantity());
+                    responseOption.setOptionContent(option.getOptionContent());
+                    responseOption.setAddPrice(option.getAdditionalPrice());
+                    itemOptionList.add(responseOption);
+                }
+            }
+
+            response.setItemOptionList(itemOptionList);
+        }
+
+
+        // PostFile 설정
+        response.setThumbNailImgPath(post.getPostFiles().stream()
+                .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
+                .findFirst()
+                .map(pf -> pf.getFilePath() + pf.getStoredFileName())
+                .orElse(null));
+
+        response.setOtherImgPathList(post.getPostFiles().stream()
+                .filter(pf -> pf.getDelegateThumbNail() == 'N' && pf.getIsDeleted() != 'Y')
+                .map(pf -> pf.getFilePath() + pf.getStoredFileName())
+                .collect(Collectors.toList()));
+
+        return response;
+    }
+
+    @Transactional("tmJpa1")
+    public Page<PostResponseByNormal> searchPosts(String type, String keyword, Pageable pageable) {
+        if( type == null || type.isEmpty() || keyword == null || keyword.isEmpty() ) {
+            Page<Post> posts = postRepository.findByIsDeleted('N',pageable);
+            return posts.map(this::covertToPostResponseByNormal);
+        }
+
+        Page<Post> posts = postRepository.searchByTypeWithDetails(type, keyword, pageable);
+        return posts.map(this::covertToPostResponseByNormal);
+    }
+
+    public Page<PostResponse> getPost4SellerUser(CustomUserDetails customUserDetails, Pageable pageable) throws IllegalAccessException, NotFoundException {
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(() -> new NotFoundException("email에 해당하는 유저가 없습니다."));
+
+        // 1-1. Check If the user is a seller
+        UserRoles userRoles = userRolesRepository.findByUser_UserId(user.getUserId());
+        if(!"ROLE_SELLER".equals(userRoles.getRoles().getName())) {
+            throw new IllegalAccessException("No Permission");
+        }
+
+        // 1-2. Fetch posts and related data
+        Page<Post> posts = postRepository.findByUserIdAndIsDeleted(user.getUserId(), 'N', pageable);
+        return posts.map(this::convertToPostResponse);
+    }
+
+
 }
