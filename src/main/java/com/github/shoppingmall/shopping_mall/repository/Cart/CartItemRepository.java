@@ -21,4 +21,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
 //            "order by ci.regTime desc"
 //    )
 //    List<CartDetailDto> findCartDetailDtoList(Integer cartId);
+
+    void deleteByCartUserUserId(Integer userId);
 }

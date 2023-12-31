@@ -674,4 +674,11 @@ public class PostService {
     }
 
 
+    public void updatePostViewCnt(Integer postId) {
+        Post post = postRepository.findById(postId).orElseThrow(()->new EntityNotFoundException("수정할 판매상품 페이지가 없습니다."));
+
+        post.setViewCnt(post.getViewCnt() + 1 );
+        post.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+        postRepository.save(post);
+    }
 }

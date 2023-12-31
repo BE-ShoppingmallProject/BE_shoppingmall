@@ -1,7 +1,9 @@
 package com.github.shoppingmall.shopping_mall.repository.users;
 
+import com.github.shoppingmall.shopping_mall.repository.Cart.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -19,5 +21,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByNickname(String nickname);
 
     User findByEmail(String email); // 카트 서비스에서 현재 로그인한 회원 구별을 위해!
+
 
 }

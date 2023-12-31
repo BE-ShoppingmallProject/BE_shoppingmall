@@ -16,4 +16,8 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     Page<Item> searchByTypeWithDetails(@Param("type") String type,
                                        @Param("keyword") String keyword,
                                        Pageable pageable);
+
+    Item findByItemId(Integer itemId);
+
+
 }

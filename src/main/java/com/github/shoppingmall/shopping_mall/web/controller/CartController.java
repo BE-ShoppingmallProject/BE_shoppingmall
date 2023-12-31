@@ -2,8 +2,12 @@ package com.github.shoppingmall.shopping_mall.web.controller;
 
 import com.github.shoppingmall.shopping_mall.repository.userDetails.CustomUserDetails;
 import com.github.shoppingmall.shopping_mall.service.CartService;
+import com.github.shoppingmall.shopping_mall.service.OrderService;
 import com.github.shoppingmall.shopping_mall.web.dto.cart.CartDetailDto;
 import com.github.shoppingmall.shopping_mall.web.dto.cart.CartItemDto;
+import com.github.shoppingmall.shopping_mall.web.dto.order.OrderDetailDto;
+import com.github.shoppingmall.shopping_mall.web.dto.order.OrderDto;
+import com.github.shoppingmall.shopping_mall.web.dto.order.OrderRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +27,8 @@ import java.util.List;
 public class CartController {
     private final CartService cartService;
 
+    private final OrderService orderService;
+
     @PostMapping("/cart") // 상품 장바구니 담기
     public @ResponseBody ResponseEntity cart(@RequestBody @Valid CartItemDto cartItemDto, BindingResult bindingResult,
                                              @AuthenticationPrincipal CustomUserDetails customUserDetails){
@@ -35,6 +41,7 @@ public class CartController {
             return new ResponseEntity<String>(sb.toString(), HttpStatus.BAD_REQUEST);
         }
 
+        String email = principal.getName();
         Integer cartItemId;
 
         try {
@@ -73,4 +80,12 @@ public class CartController {
         return new ResponseEntity<Integer>(cartItemId, HttpStatus.OK);
     }
 
+    @PostMapping("/cart/order")
+    public ResponseEntity<String> createOrder(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody OrderRequestDto orderRequestDto) {
+        Integer userId = customUserDetails.getUserId();
+        List<OrderDetailDto> orderDetails = orderRequestDto.getOrderDetails();
+        orderService.createOrder(orderRequestDto.getOrderDto(), orderDetails, userId);
+
+        return ResponseEntity.ok("주문 및 결제가 처리되었습니다.");
+    }
 }
