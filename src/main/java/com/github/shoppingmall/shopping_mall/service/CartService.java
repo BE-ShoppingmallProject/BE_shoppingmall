@@ -8,8 +8,10 @@ import com.github.shoppingmall.shopping_mall.repository.Item.Item;
 import com.github.shoppingmall.shopping_mall.repository.Item.ItemOption;
 import com.github.shoppingmall.shopping_mall.repository.Item.ItemOptionRepository;
 import com.github.shoppingmall.shopping_mall.repository.Item.ItemRepository;
+import com.github.shoppingmall.shopping_mall.repository.userDetails.CustomUserDetails;
 import com.github.shoppingmall.shopping_mall.repository.users.User;
 import com.github.shoppingmall.shopping_mall.repository.users.UserRepository;
+import com.github.shoppingmall.shopping_mall.service.exceptions.NotFoundException;
 import com.github.shoppingmall.shopping_mall.web.dto.cart.CartDetailDto;
 import com.github.shoppingmall.shopping_mall.web.dto.cart.CartItemDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,11 +33,10 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ItemOptionRepository itemOptionRepository;
 
-    public Integer addCart(CartItemDto cartItemDto, String email){
+    public Integer addCart(CartItemDto cartItemDto, CustomUserDetails customUserDetails){
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new); // 상품 조회
-        User user = userRepository.findByEmail(email); // 회원 조회
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
         ItemOption itemOption = itemOptionRepository.findById(cartItemDto.getOptionId()).orElseThrow(EntityNotFoundException::new);
-
 
         Cart cart = cartRepository.findByUserUserId(user.getUserId()); // 장바구니 조회
         if(cart == null){ // 장바구니 처음 사용이면 장바구니 생성
@@ -74,8 +75,8 @@ public class CartService {
 //    }
 
     @Transactional
-    public boolean validateCartItem(Integer cartItemId, String email){
-        User user = userRepository.findByEmail(email);
+    public boolean validateCartItem(Integer cartItemId, CustomUserDetails customUserDetails){
+        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(EntityNotFoundException::new);
         User savedUser = cartItem.getCart().getUser();
 

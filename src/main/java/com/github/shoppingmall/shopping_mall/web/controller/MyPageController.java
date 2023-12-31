@@ -1,6 +1,7 @@
 package com.github.shoppingmall.shopping_mall.web.controller;
 
 import com.github.shoppingmall.shopping_mall.repository.Order.Order;
+import com.github.shoppingmall.shopping_mall.repository.userDetails.CustomUserDetails;
 import com.github.shoppingmall.shopping_mall.service.MyPageService;
 import com.github.shoppingmall.shopping_mall.service.auth.AuthService;
 import com.github.shoppingmall.shopping_mall.web.dto.user.UserInfo;
@@ -20,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyPageController {
     private final MyPageService myPageService;
-    private final AuthService authService;
     // Todo. private final OrderService orderService;
 
 //    @GetMapping("/myPage/{user_id}")
@@ -31,11 +31,11 @@ public class MyPageController {
 //        return "/myPage";
 //    }
 
-//    @GetMapping("/myPage/userInfo")
-//    public ResponseEntity<UserInfo> userInfo(){
-//        UserInfo userInfo = myPageService.getUserInfo(authInfo.getUserId());
-//
-//        return ResponseEntity.ok().body(userInfo);
-//    }
+    @GetMapping("/myPage/userInfo")
+    public ResponseEntity<UserInfo> userInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        UserInfo userInfo = myPageService.getUserInfo(customUserDetails.getUserId());
+
+        return ResponseEntity.ok().body(userInfo);
+    }
 
 }

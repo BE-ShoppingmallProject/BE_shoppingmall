@@ -21,8 +21,9 @@ public class MyPageService {
             String email = user.get().getEmail();
             String nickname = user.get().getNickname();
             String phoneNumber = user.get().getPhoneNumber();
+            String imgUrl = user.get().getProfileImagePath();
 
-            return new UserInfo(name, email, nickname, phoneNumber);
+            return new UserInfo(name, email, nickname, phoneNumber, imgUrl);
         }else throw new RuntimeException("신규 회원이면 장바구니 조회 안 됨.");
     }
 }

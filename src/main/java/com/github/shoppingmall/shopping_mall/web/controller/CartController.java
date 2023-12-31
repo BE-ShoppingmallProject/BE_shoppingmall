@@ -1,5 +1,6 @@
 package com.github.shoppingmall.shopping_mall.web.controller;
 
+import com.github.shoppingmall.shopping_mall.repository.userDetails.CustomUserDetails;
 import com.github.shoppingmall.shopping_mall.service.CartService;
 import com.github.shoppingmall.shopping_mall.web.dto.cart.CartDetailDto;
 import com.github.shoppingmall.shopping_mall.web.dto.cart.CartItemDto;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -22,7 +24,8 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping("/cart") // 상품 장바구니 담기
-    public @ResponseBody ResponseEntity cart(@RequestBody @Valid CartItemDto cartItemDto, BindingResult bindingResult, Principal principal){
+    public @ResponseBody ResponseEntity cart(@RequestBody @Valid CartItemDto cartItemDto, BindingResult bindingResult,
+                                             @AuthenticationPrincipal CustomUserDetails customUserDetails){
         if (bindingResult.hasErrors()){
             StringBuilder sb = new StringBuilder();
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -32,11 +35,10 @@ public class CartController {
             return new ResponseEntity<String>(sb.toString(), HttpStatus.BAD_REQUEST);
         }
 
-        String email = principal.getName();
         Integer cartItemId;
 
         try {
-            cartItemId = cartService.addCart(cartItemDto, email);
+            cartItemId = cartService.addCart(cartItemDto, customUserDetails);
         }catch (Exception e){
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -51,10 +53,10 @@ public class CartController {
 //    }
 
     @PatchMapping("/cartItem/{cartItemId}")
-    public @ResponseBody ResponseEntity updateCartItem(@PathVariable("cartItemId") Integer cartItemId, Integer count, Principal principal){
+    public @ResponseBody ResponseEntity updateCartItem(@PathVariable("cartItemId") Integer cartItemId, Integer count, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         if(count <= 0){
             return new ResponseEntity<String >("최소 1개 이상 담아주세요", HttpStatus.BAD_REQUEST);
-        } else if (!cartService.validateCartItem(cartItemId, principal.getName())) {
+        } else if (!cartService.validateCartItem(cartItemId, customUserDetails)) {
             return new ResponseEntity<String>("수정권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
         cartService.updateCartItemCount(cartItemId, count);
@@ -62,8 +64,8 @@ public class CartController {
     }
 
     @DeleteMapping("/cartItem/{cartItemId}")
-    public @ResponseBody ResponseEntity deleteCartItem(@PathVariable("cartItemId") Integer cartItemId, Principal principal){
-        if(!cartService.validateCartItem(cartItemId, principal.getName())){
+    public @ResponseBody ResponseEntity deleteCartItem(@PathVariable("cartItemId") Integer cartItemId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        if(!cartService.validateCartItem(cartItemId, customUserDetails)){
             return new ResponseEntity<String>("수정 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
