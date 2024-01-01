@@ -17,6 +17,9 @@ import com.github.shoppingmall.shopping_mall.web.dto.cart.CartItemDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 
@@ -25,7 +28,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Slf4j
 public class CartService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -33,9 +36,9 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ItemOptionRepository itemOptionRepository;
 
-    public Integer addCart(CartItemDto cartItemDto, CustomUserDetails customUserDetails){
+    public Integer addCart(CartItemDto cartItemDto, Integer UserId){
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new); // 상품 조회
-        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
+        User user = userRepository.findByUserId(UserId).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
         ItemOption itemOption = itemOptionRepository.findById(cartItemDto.getOptionId()).orElseThrow(EntityNotFoundException::new);
 
         Cart cart = cartRepository.findByUserUserId(user.getUserId()); // 장바구니 조회
@@ -75,8 +78,8 @@ public class CartService {
 //    }
 
     @Transactional
-    public boolean validateCartItem(Integer cartItemId, CustomUserDetails customUserDetails){
-        User user = userRepository.findByEmailFetchJoin(customUserDetails.getUsername()).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
+    public boolean validateCartItem(Integer cartItemId, Integer UserId){
+        User user = userRepository.findByUserId(UserId).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(EntityNotFoundException::new);
         User savedUser = cartItem.getCart().getUser();
 

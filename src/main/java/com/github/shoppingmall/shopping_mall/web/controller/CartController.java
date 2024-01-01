@@ -41,11 +41,10 @@ public class CartController {
             return new ResponseEntity<String>(sb.toString(), HttpStatus.BAD_REQUEST);
         }
 
-        String email = principal.getName();
         Integer cartItemId;
 
         try {
-            cartItemId = cartService.addCart(cartItemDto, customUserDetails);
+            cartItemId = cartService.addCart(cartItemDto, customUserDetails.getUserId());
         }catch (Exception e){
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -63,7 +62,7 @@ public class CartController {
     public @ResponseBody ResponseEntity updateCartItem(@PathVariable("cartItemId") Integer cartItemId, Integer count, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         if(count <= 0){
             return new ResponseEntity<String >("최소 1개 이상 담아주세요", HttpStatus.BAD_REQUEST);
-        } else if (!cartService.validateCartItem(cartItemId, customUserDetails)) {
+        } else if (!cartService.validateCartItem(cartItemId, customUserDetails.getUserId())) {
             return new ResponseEntity<String>("수정권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
         cartService.updateCartItemCount(cartItemId, count);
@@ -72,7 +71,7 @@ public class CartController {
 
     @DeleteMapping("/cartItem/{cartItemId}")
     public @ResponseBody ResponseEntity deleteCartItem(@PathVariable("cartItemId") Integer cartItemId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        if(!cartService.validateCartItem(cartItemId, customUserDetails)){
+        if(!cartService.validateCartItem(cartItemId, customUserDetails.getUserId())){
             return new ResponseEntity<String>("수정 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
