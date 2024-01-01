@@ -306,7 +306,7 @@ public class PostService {
         // Item 저장 로직
         // ItemOption, StockItem 등 관련 엔티티 처리
         ItemCreationDto creationDto = objectMapper.readValue(postCreationDto.getCreationDtoJson(), ItemCreationDto.class);
-        //User user  = userRepository.findByEmail(creationDto.getItem().getEmail());
+   //     User user  = userRepository.findByEmail(creationDto.getItem().getEmail());
 
         Item item = covertToEntity( creationDto.getItem() );
         item.setUserId(user.getUserId());
@@ -540,7 +540,7 @@ public class PostService {
         Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst();
-        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getFilePath() + pf.getStoredFileName()).orElse(null));
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getStoredFileName()).orElse(null));
 
         return response;
     }
@@ -573,7 +573,7 @@ public class PostService {
         Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst();
-        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getFilePath() + pf.getStoredFileName()).orElse(null));
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getStoredFileName()).orElse(null));
 
         return response;
     }
@@ -637,12 +637,12 @@ public class PostService {
         response.setThumbNailImgPath(post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst()
-                .map(pf -> pf.getFilePath() + pf.getStoredFileName())
+                .map(pf -> pf.getStoredFileName())
                 .orElse(null));
 
         response.setOtherImgPathList(post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'N' && pf.getIsDeleted() != 'Y')
-                .map(pf -> pf.getFilePath() + pf.getStoredFileName())
+                .map(pf -> pf.getStoredFileName())
                 .collect(Collectors.toList()));
 
         return response;
