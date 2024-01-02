@@ -8,6 +8,8 @@ import com.github.shoppingmall.shopping_mall.web.dto.cart.CartItemDto;
 import com.github.shoppingmall.shopping_mall.web.dto.order.OrderDetailDto;
 import com.github.shoppingmall.shopping_mall.web.dto.order.OrderDto;
 import com.github.shoppingmall.shopping_mall.web.dto.order.OrderRequestDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,15 +23,16 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
+@Tag(name="Carts", description = "장바구니 페이지 API")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-
     private final OrderService orderService;
 
     @PostMapping("/cart") // 상품 장바구니 담기
+    @Operation(summary = "상품 장바구니 담기")
     public @ResponseBody ResponseEntity cart(@RequestBody @Valid CartItemDto cartItemDto, BindingResult bindingResult,
                                              @AuthenticationPrincipal CustomUserDetails customUserDetails){
         if (bindingResult.hasErrors()){
@@ -51,14 +54,8 @@ public class CartController {
         return new ResponseEntity<Integer>(cartItemId, HttpStatus.OK);
     }
 
-//    @GetMapping("/cart")
-//    public String orderHistory(Principal principal, Model model){
-//        List<CartDetailDto> cartDetailList = cartService.getCartList(principal.getName());
-//        model.addAttribute("cartItems", cartDetailList);
-//        return "cart/cartList";
-//    }
-
     @PatchMapping("/cartItem/{cartItemId}")
+    @Operation(summary = "상품 장바구니 수정")
     public @ResponseBody ResponseEntity updateCartItem(@PathVariable("cartItemId") Integer cartItemId, Integer count, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         if(count <= 0){
             return new ResponseEntity<String >("최소 1개 이상 담아주세요", HttpStatus.BAD_REQUEST);
@@ -70,6 +67,7 @@ public class CartController {
     }
 
     @DeleteMapping("/cartItem/{cartItemId}")
+    @Operation(summary = "상품 장바구니 삭제")
     public @ResponseBody ResponseEntity deleteCartItem(@PathVariable("cartItemId") Integer cartItemId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         if(!cartService.validateCartItem(cartItemId, customUserDetails.getUserId())){
             return new ResponseEntity<String>("수정 권한이 없습니다.", HttpStatus.FORBIDDEN);

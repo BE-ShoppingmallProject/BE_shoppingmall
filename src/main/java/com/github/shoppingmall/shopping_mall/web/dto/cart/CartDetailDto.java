@@ -12,9 +12,9 @@ public class CartDetailDto {
 
     private String itemName; // 상품이름
 
-    private Integer price; // 상품 가격
+    private Integer unitPrice; // 상품 가격
 
-    private Integer count; // 상품 수량
+    private Integer quantity; // 상품 수량
 
     private String imgUrl; // 상품 이미지 경로
 }

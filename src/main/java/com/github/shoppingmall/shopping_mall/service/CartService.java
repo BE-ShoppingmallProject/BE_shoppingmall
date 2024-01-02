@@ -36,9 +36,9 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ItemOptionRepository itemOptionRepository;
 
-    public Integer addCart(CartItemDto cartItemDto, Integer UserId){
+    public Integer addCart(CartItemDto cartItemDto, Integer userId){
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new); // 상품 조회
-        User user = userRepository.findByUserId(UserId).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
+        User user = userRepository.findByUserId(userId).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
         ItemOption itemOption = itemOptionRepository.findById(cartItemDto.getOptionId()).orElseThrow(EntityNotFoundException::new);
 
         Cart cart = cartRepository.findByUserUserId(user.getUserId()); // 장바구니 조회
@@ -59,23 +59,21 @@ public class CartService {
         }
     }
 
-    // TODO. 장바구니에서 주문 기능 구현 X, 상품 이미지 가져와서 장바구니 리스트 생성 X
-//    @Transactional
-//    public List<CartDetailDto> getCartList(String email) { // 장바구니에 들어있는 상품 조회
-//        List<CartDetailDto>    cartDetailDtoList = new ArrayList<>();
-//
-//        User user = userRepository.findByEmail(email);
-//
-//        Cart cart = cartRepository.findByUserUserId(user.getUserId());
-//
-//        if (cart == null){
-//            return cartDetailDtoList;
-//        }
-//
-//        cartDetailDtoList = cartItemRepository.findCartDetailDtoList(cart.getCartId());
-//
-//        return cartDetailDtoList;
-//    }
+    @Transactional
+    public List<CartDetailDto> getCartList(Integer userId) { // 장바구니에 들어있는 상품 조회
+        List<CartDetailDto> cartDetailDtoList = new ArrayList<>();
+
+        User user = userRepository.findByUserId(userId).orElseThrow(()->new NotFoundException("해당하는 유저가 없습니다.")); // 회원 조회
+        Cart cart = cartRepository.findByUserUserId(user.getUserId());
+
+        if (cart == null){
+            return cartDetailDtoList;
+        }
+
+        cartDetailDtoList = cartItemRepository.findCartDetailDtoList(cart.getCartId());
+
+        return cartDetailDtoList;
+    }
 
     @Transactional
     public boolean validateCartItem(Integer cartItemId, Integer UserId){

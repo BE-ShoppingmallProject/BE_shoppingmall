@@ -13,13 +13,13 @@ public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
     CartItem findByCartCartIdAndItemItemId(Integer cartId, Integer itemId); // 상품이 장바구니에 들어있는지 조회
 
     // TODO. SQL문 수정!!! (상품이미지 가져와야함...)
-//    @Query("SELECT new com.github.shoppingmall.shopping_mall.web.dto.cart.CartDetailDto(ci.cartItemId, i.itemName, i.unitPrice, ci.quantity, pf.delegateThumbNail) " +
-//            "FROM CartItem ci " +
-//            "JOIN ci.item i " +
-//            "JOIN PostFile pf ON pf.item.itemId = i.itemId " +
-//            "WHERE ci.cart.cartId = :cartId " +
-//            "AND pf.delegateThumbNail = 'Y'")
-//    List<CartDetailDto> findCartDetailDtoList(@Param("cartId") Integer cartId);
+    @Query("SELECT new com.github.shoppingmall.shopping_mall.web.dto.cart.CartDetailDto(ci.cartItemId, i.itemName, i.unitPrice, ci.quantity, pf.filePath) " +
+            "FROM CartItem ci, PostFile pf " +
+            "JOIN ci.item i " +
+            "WHERE ci.cart.cartId = :cartId " +
+            "AND pf.itemId = ci.item.itemId " +
+            "AND pf.delegateThumbNail = 'Y'")
+    List<CartDetailDto> findCartDetailDtoList(Integer cartId);
 
     void deleteByCartUserUserId(Integer userId);
 }

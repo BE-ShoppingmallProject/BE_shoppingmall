@@ -1,11 +1,19 @@
 package com.github.shoppingmall.shopping_mall.service;
 
+import com.github.shoppingmall.shopping_mall.repository.Cart.Cart;
+import com.github.shoppingmall.shopping_mall.repository.Cart.CartItemRepository;
+import com.github.shoppingmall.shopping_mall.repository.Cart.CartRepository;
 import com.github.shoppingmall.shopping_mall.repository.users.User;
 import com.github.shoppingmall.shopping_mall.repository.users.UserRepository;
+import com.github.shoppingmall.shopping_mall.service.exceptions.NotFoundException;
+import com.github.shoppingmall.shopping_mall.web.dto.cart.CartDetailDto;
 import com.github.shoppingmall.shopping_mall.web.dto.user.UserInfo;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,5 +34,6 @@ public class MyPageService {
             return new UserInfo(name, email, nickname, phoneNumber, imgUrl);
         }else throw new RuntimeException("신규 회원이면 장바구니 조회 안 됨.");
     }
+
 }
 
