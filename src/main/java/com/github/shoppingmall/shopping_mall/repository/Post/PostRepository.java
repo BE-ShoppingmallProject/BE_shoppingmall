@@ -28,7 +28,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                                        @Param("keyword") String keyword,
                                        Pageable pageable);
 
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.item i WHERE i.categoryId = :categoryId")
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.item i WHERE i.categoryId = :categoryId AND p.isDeleted = 'N'")
     Page<Post> findByCategoryId(@Param("categoryId") Integer categoryId, Pageable pageable);
 
 }

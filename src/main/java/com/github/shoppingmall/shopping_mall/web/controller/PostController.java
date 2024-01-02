@@ -232,7 +232,7 @@ public class PostController {
 
         Pageable pageable = PageRequest.of(page, size);
         try {
-            logger.info("categoryId : " + categoryId);
+            //logger.info("categoryId : " + categoryId);
             Page<PostResponseByNormal> postResponse = postService.getPostByCategoryId(categoryId, pageable);
             return ResponseEntity.ok(postResponse);
         } catch (Exception e){
