@@ -540,7 +540,7 @@ public class PostService {
         Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst();
-        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getStoredFileName()).orElse(null));
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getFilePath()).orElse(null));
 
         return response;
     }
@@ -573,7 +573,7 @@ public class PostService {
         Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst();
-        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getStoredFileName()).orElse(null));
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getFilePath()).orElse(null));
 
         return response;
     }
@@ -637,12 +637,12 @@ public class PostService {
         response.setThumbNailImgPath(post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst()
-                .map(pf -> pf.getStoredFileName())
+                .map(pf -> pf.getFilePath())
                 .orElse(null));
 
         response.setOtherImgPathList(post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'N' && pf.getIsDeleted() != 'Y')
-                .map(pf -> pf.getStoredFileName())
+                .map(pf -> pf.getFilePath())
                 .collect(Collectors.toList()));
 
         return response;
