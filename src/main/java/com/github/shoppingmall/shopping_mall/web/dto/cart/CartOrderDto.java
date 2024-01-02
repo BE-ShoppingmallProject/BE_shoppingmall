@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CartOrderDto {
-    private int cartItemId;
+    private Integer cartItemId;
 
     private List<CartOrderDto> cartOrderDtoList;
 }
