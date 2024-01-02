@@ -35,7 +35,7 @@ public class CartItem {
     @Column(name = "quantity")
     private Integer quantity; // 수량
 
-    public static CartItem createCartItem(Cart cart, Item item, ItemOption itemOption, int quantity){ // 카트 아이템 생성
+    public static CartItem createCartItem(Cart cart, Item item, ItemOption itemOption, Integer quantity){ // 카트 아이템 생성
         CartItem cartItem = new CartItem();
         cartItem.setCart(cart);
         cartItem.setItem(item);
@@ -45,11 +45,11 @@ public class CartItem {
         return cartItem;
     }
 
-    public void addCount(int quantity){
+    public void addCount(Integer quantity){
         this.quantity += quantity;
     }
 
-    public void updateCount(int quantity){ // 장바구니 상품 수량 변경
+    public void updateCount(Integer quantity){ // 장바구니 상품 수량 변경
         this.quantity = quantity;
     }
 }

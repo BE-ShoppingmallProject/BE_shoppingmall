@@ -169,6 +169,7 @@ public class PostController {
         try {
             Optional<PostResponse> postResponse = postService.getPostById(postId);
             if (postResponse.isPresent()) {
+                postService.updatePostViewCnt(postId);
                 return ResponseEntity.ok(postResponse.get());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post Not Found");
