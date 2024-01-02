@@ -25,7 +25,8 @@ public class SellerItemController {
     private final SellerItemService sellerItemService;
     private static final Logger logger = LoggerFactory.getLogger(SellerItemController.class);
 
-    @PostMapping("/seller/add")
+
+    //@PostMapping("/seller/add")
     public ResponseEntity<Map<String,String>> addItem(@RequestBody ItemCreationDto itemCreationDto ) {
         logger.info("/api/seller/add");
         Map<String, String> response = new HashMap<>();
@@ -91,7 +92,7 @@ public class SellerItemController {
 
 
 
-    @PutMapping("/seller/update/")
+    //@PutMapping("/seller/update/")
     public ResponseEntity<Map<String,String>> updateItem(@RequestBody ItemCreationDto itemCreationDto ) {
         logger.info("/api/seller/update");
         Map<String, String> response = new HashMap<>();
@@ -161,7 +162,7 @@ public class SellerItemController {
 
 
 
-    @GetMapping("/seller/search")
+    //@GetMapping("/seller/search")
     public ResponseEntity<Page<Item>> searchItems(@RequestParam(value="type", required = false) String type,
                                                   @RequestParam(value="keyword", required = false) String keyword,
                                                   @RequestParam(value="page", defaultValue = "0") int page,

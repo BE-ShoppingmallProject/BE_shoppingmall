@@ -174,7 +174,7 @@ public class PostController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post Not Found");
             }
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
 
@@ -193,7 +193,7 @@ public class PostController {
             Page<PostResponseByNormal> postResponse = postService.searchPosts(type, keyword, pageable);
             return ResponseEntity.ok(postResponse);
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
 
@@ -220,4 +220,22 @@ public class PostController {
         }
     }
 
-}
+
+
+
+    @GetMapping("/post/category/")
+    @Operation(summary = "판매 상품 페이지 조회(카테고리별)")
+    public ResponseEntity<?> searchPost( @Parameter(name="categoryId", description = "Category ID") @RequestParam Integer categoryId,
+                                         @RequestParam(value="page", defaultValue = "0") int page,
+                                         @RequestParam(value="size", defaultValue = "30") int size ) {
+        logger.info("/api/post/category");
+
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            logger.info("categoryId : " + categoryId);
+            Page<PostResponseByNormal> postResponse = postService.getPostByCategoryId(categoryId, pageable);
+            return ResponseEntity.ok(postResponse);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
+    }}
