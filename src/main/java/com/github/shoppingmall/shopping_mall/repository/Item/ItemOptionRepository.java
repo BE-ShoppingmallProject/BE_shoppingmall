@@ -9,4 +9,6 @@ import java.util.List;
 public interface ItemOptionRepository extends JpaRepository<ItemOption, Integer> {
 
     List<ItemOption> findByItem_ItemId(Integer itemId);
+
+    ItemOption findByOptionId(Integer optionId);
 }

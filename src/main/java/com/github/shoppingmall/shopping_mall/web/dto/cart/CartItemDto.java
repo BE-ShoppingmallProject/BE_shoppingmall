@@ -12,11 +12,11 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartItemDto {
     @NotNull(message = "상품 아이디는 필수 입력값입니다.")
-    private int itemId;
+    private Integer itemId;
 
     @Min(value = 1, message = "최소 1개 이상 담아주세요.")
-    private int count;
+    private Integer count;
 
-    private int optionId;
+    private Integer optionId;
 
 }
