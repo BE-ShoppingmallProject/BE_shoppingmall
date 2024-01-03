@@ -15,7 +15,7 @@ import java.util.Collection;
 @Builder
 @Entity
 @EqualsAndHashCode(of = "userId")
-@Table(name = "user")
+@Table(name = "USER")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

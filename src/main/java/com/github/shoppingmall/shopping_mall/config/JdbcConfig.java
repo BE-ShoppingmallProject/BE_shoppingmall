@@ -24,10 +24,8 @@ public class JdbcConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUsername(dataSourceProperties.getUsername());
         dataSource.setPassword(dataSourceProperties.getPassword());
-        //    dataSource.setDriverClassName(" org.mariadb.jdbc.Driver");
-        //    dataSource.setUrl("jdbc:mariadb://project2.cehckoacemxp.ap-northeast-2.rds.amazonaws.com:3306/Project2?useUnicode=true&characterEncoding=UTF-8");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://mini.jh1105.xyz:5306/project2?useUnicode=true&characterEncoding=UTF-8");
+        dataSource.setUrl("jdbc:mysql://testdb-spring-boot.ctw0ggags8nt.us-east-1.rds.amazonaws.com:3306/project2?useUnicode=true&characterEncoding=UTF-8");
 
         return dataSource;
     }
