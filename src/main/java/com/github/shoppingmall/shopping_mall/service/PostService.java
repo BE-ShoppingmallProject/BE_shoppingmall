@@ -65,6 +65,9 @@ public class PostService {
 
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
+    @org.springframework.beans.factory.annotation.Value("${host.host_path}")
+    private String HOST_PATH;
+
   //  private static final String UPLOAD_DIR = "/Users/peten/test/img/";
     @org.springframework.beans.factory.annotation.Value("${post.file_path}")
     private String UPLOAD_DIR;
@@ -110,6 +113,13 @@ public class PostService {
         }
 
         if( optionList.size() > 0 ){
+
+
+            if( optionList.size() != updateItemDto.getStockItems().size() ){
+                logger.error("stock item list size not equals option list size");
+                return false;
+            }
+
             for( int i = 0; i < updateItemDto.getStockItems().size(); i++ ){
 
                 StockItemDto stockItemDto = updateItemDto.getStockItems().get(i);
@@ -342,6 +352,12 @@ public class PostService {
             }
 
         } else {
+
+            if( optionList.size() != creationDto.getStockItems().size() ){
+                logger.error("stock item list size not equals option list size");
+                return false;
+            }
+
             for (int i = 0; i < creationDto.getStockItems().size(); i++) {
                 StockItemDto stockItemDto = creationDto.getStockItems().get(i);
                 ItemOption itemOption = optionList.get(i);
@@ -540,7 +556,7 @@ public class PostService {
         Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst();
-        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getStoredFileName()).orElse(null));
+        response.setThumbNailImgPath(thumbNailFile.map( pf -> HOST_PATH+"/images/"+pf.getStoredFileName()).orElse(null));
 
         return response;
     }
@@ -573,7 +589,7 @@ public class PostService {
         Optional<PostFile> thumbNailFile = post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst();
-        response.setThumbNailImgPath(thumbNailFile.map(pf -> pf.getStoredFileName()).orElse(null));
+        response.setThumbNailImgPath(thumbNailFile.map(pf -> HOST_PATH+"/images/"+pf.getStoredFileName()).orElse(null));
 
         return response;
     }
@@ -637,12 +653,12 @@ public class PostService {
         response.setThumbNailImgPath(post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'Y' && pf.getIsDeleted() != 'Y')
                 .findFirst()
-                .map(pf -> pf.getStoredFileName())
+                .map(pf -> HOST_PATH+"/images/"+pf.getStoredFileName())
                 .orElse(null));
 
         response.setOtherImgPathList(post.getPostFiles().stream()
                 .filter(pf -> pf.getDelegateThumbNail() == 'N' && pf.getIsDeleted() != 'Y')
-                .map(pf -> pf.getStoredFileName())
+                .map(pf -> HOST_PATH+"/images/"+pf.getStoredFileName())
                 .collect(Collectors.toList()));
 
         return response;
@@ -674,6 +690,11 @@ public class PostService {
     }
 
 
+    public Page<PostResponseByNormal> getPostByCategoryId(Integer categoryId, Pageable pageable) {
+        Page<Post> posts = postRepository.findByCategoryId(categoryId, pageable);
+        return posts.map(this::covertToPostResponseByNormal);
+    }
+  
     public void updatePostViewCnt(Integer postId) {
         Post post = postRepository.findById(postId).orElseThrow(()->new EntityNotFoundException("수정할 판매상품 페이지가 없습니다."));
 
