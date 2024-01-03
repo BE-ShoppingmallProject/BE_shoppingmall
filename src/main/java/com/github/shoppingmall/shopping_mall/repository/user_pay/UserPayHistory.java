@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "user_pay_history")
+@Table(name = "USER_PAY_HISTORY")
 public class UserPayHistory {
 
     @Id

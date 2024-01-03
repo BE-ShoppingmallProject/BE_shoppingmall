@@ -11,21 +11,19 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-
-    private static final String SECURITY_SCHEME_NAME = "authorization";	// 추가
-
     @Bean
     public OpenAPI swaggerApi() {
-        return new OpenAPI().components(new Components()
-                        .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
-                                .name(SECURITY_SCHEME_NAME)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")))
-                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
-                .info(new Info()
-                        .title("쇼핑몰 프로젝트 API 명세서")
-                        .description("수정중,")
-                        .version("1.0.0"));
+
+        return new OpenAPI()
+                .info(new Info().title("쇼핑몰 프로젝트 API 명세서").version("1.0.0"))
+                .addSecurityItem(new SecurityRequirement().addList("tokenScheme"))
+                .components(new Components()
+                        .addSecuritySchemes("tokenScheme", new SecurityScheme()
+                                .name("token")
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.HEADER)
+                                .bearerFormat("JWT")
+                        )
+                );
     }
 }

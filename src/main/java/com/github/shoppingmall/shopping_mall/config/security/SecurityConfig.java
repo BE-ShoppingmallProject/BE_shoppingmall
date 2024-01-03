@@ -40,10 +40,10 @@ public class SecurityConfig {
                 })
                 .authorizeRequests(a ->
                         a
-                                .requestMatchers("/resources/static/**", "/api/sign/*").permitAll()
-                                .requestMatchers("/admin/**", "/api/account/set-super-user","/api/seller/*").hasAnyRole("ADMIN","SELLER")
+                                .requestMatchers("/resources/static/**", "/api/sign/login").permitAll()
+                                .requestMatchers("/admin/**", "/api/account/set-super-user").hasAnyRole("ADMIN","SELLER")
                                 .requestMatchers("/api/sign/logout").hasAnyRole("ADMIN", "NORMAL", "SELLER")
-                                .requestMatchers("/api/account/**", "/api/items/**", "/api/cart/**", "/api/cartItem/**", "/api/post/**", "/api/posts/**", "/api/delete/**").hasAnyRole("ADMIN", "NORMAL", "SELLER")
+                                .requestMatchers("/api/account/**", "/api/cart/**", "/api/myPage/**", "/api/post/add", "/api/post/update", "/api/post/seller-page").hasAnyRole("ADMIN", "NORMAL", "SELLER")
 
                 )
                 .logout(l -> {

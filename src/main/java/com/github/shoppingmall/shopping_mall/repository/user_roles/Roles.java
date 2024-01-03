@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "roles")
+@Table(name = "ROLES")
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

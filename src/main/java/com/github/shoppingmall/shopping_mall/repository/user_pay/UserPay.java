@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "user_pay")
+@Table(name = "USER_PAY")
 public class UserPay {
     @Id
     @Column(name = "user_id", nullable = false, unique = true)
