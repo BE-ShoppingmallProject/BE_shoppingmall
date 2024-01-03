@@ -40,11 +40,10 @@ public class MyPageController {
 
     @GetMapping("/myPage/cart")
     @Operation(summary = "장바구니 상품 조회")
-    public String orderHistory(@AuthenticationPrincipal CustomUserDetails customUserDetails, Model model){
-        List<CartDetailDto> cartDetailList = cartService.getCartList(customUserDetails.getUserId());
-        model.addAttribute("cartItems", cartDetailList);
-        return "cart/cartList";
-    }
+    public ResponseEntity<List<CartDetailDto>> getCartList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<CartDetailDto> cartDetailDtoList = cartService.getCartList(customUserDetails.getUserId());
+        return ResponseEntity.ok(cartDetailDtoList);
+        }
 
     @Operation(summary = "유저 정보 조회")
     @GetMapping("/myPage/userInfo")
