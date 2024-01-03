@@ -2,6 +2,7 @@ package com.github.shoppingmall.shopping_mall.repository.Cart;
 
 import com.github.shoppingmall.shopping_mall.repository.Item.Item;
 import com.github.shoppingmall.shopping_mall.repository.Item.ItemOption;
+import com.github.shoppingmall.shopping_mall.repository.SellerItem.StockItem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,10 @@ public class CartItem {
     @Column(name = "quantity")
     private Integer quantity; // 수량
 
+//    private Integer price; // 가격
+//
+//    private Integer count;
+
     public static CartItem createCartItem(Cart cart, Item item, ItemOption itemOption, Integer quantity){ // 카트 아이템 생성
         CartItem cartItem = new CartItem();
         cartItem.setCart(cart);
@@ -45,11 +50,15 @@ public class CartItem {
         return cartItem;
     }
 
-    public void addCount(Integer quantity){
-        this.quantity += quantity;
-    }
+//    public void setPrice(Item item){
+//        price = quantity * item.getUnitPrice();
+//    }
 
     public void updateCount(Integer quantity){ // 장바구니 상품 수량 변경
         this.quantity = quantity;
+    }
+
+    public void addCount(Integer quantity){
+        this.quantity += quantity;
     }
 }
